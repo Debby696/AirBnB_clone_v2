@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+"""a Fabric script (based on the file 1-pack_web_static.py) that
+distributes an archive to your web servers, using the function do_deploy
+"""
+from fabric.api import *
+from datetime import datetime
+from os import path
+
+
+env.hosts = ['100.25.19.204', '54.157.159.85']
+env.user = 'ubuntu'
+env.key_filename = '~/.ssh/id_rsa'
+
+
+def do_deploy(archive_path):
+    """a function that deploys web files to a server
+    """
+    try:
+        if not (path.exists(archive_path)):
+            return False
+
+        # upload archive
+        put(archive_path, '/tmp/')
+
+        # create target dir
+        timestamp = archive_path[-18:-4]
+        run('sudo mkdir -p /data/web_static/\
+releases/web_static_{}/'.format(timestamp))
+
+        # uncompress archive and delete .tgz
+        run('sudo tar -xzf /tmp/web_static_{}.tgz -C \
+/data/web_static/releases/web_static_{}/'
+            .format(timestamp, timestamp))
+
+        # archive removed
+        run('sudo rm /tmp/web_static_{}.tgz'.format(timestamp))
+
+        # contents is moved into host web_static
+        run('sudo mv /data/web_static/releases/web_static_{}/web_static/* \
+/data/web_static/releases/web_static_{}/'.format(timestamp, timestamp))
+
+        # extraneous web_static dir is removed
+        run('sudo rm -rf /data/web_static/releases/\
+web_static_{}/web_static'
+            .format(timestamp))
+
+        # delete pre-existing sym link
+        run('sudo rm -rf /data/web_static/current')
+
+        # re-establish symbolic link
+        run('sudo ln -s /data/web_static/releases/\
+web_static_{}/ /data/web_static/current'.format(timestamp))
+        except:
+            return False
+
+        # return True on success
+        return True
