@@ -7,7 +7,7 @@ from fabric.api import env, put, run
 from datetime import datetime
 
 
-env.hosts = ['18.235.234.201', '54.144.138.37']
+env.hosts = ["18.235.234.201", "54.144.138.37"]
 env.user = 'ubuntu'
 env.key_filename = '~/.ssh/id_rsa'
 
