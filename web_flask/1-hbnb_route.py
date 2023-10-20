@@ -18,7 +18,7 @@ def hello():
 @app.route("/hbnb", strict_slashes=False)
 def hbnb():
     """Return hbnb"""
-    return ("HBNB!")
+    return ("HBNB")
 
 
 if __name__ == "__main__":
