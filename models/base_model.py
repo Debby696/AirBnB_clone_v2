@@ -15,17 +15,20 @@ class BaseModel:
     updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
 
     def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
-        if not kwargs:
-            self.id = str(uuid.uuid4())
-            self.created_at = self.updated_at = datetime.utcnow()
-            # Removed storage.new from here
-        else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
+        """Instantiates a new model"""
+        self.id = str(uuid.uuid4())
+        self.created_at = self.updated_at = datetime.utcnow()
+        # Removed storage.new from here
+        
+        if kwargs:
+            if 'updated_at' in kwargs.keys():
+                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
                                                      '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
+            if 'created_at' in kwargs.keys():
+                kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
                                                      '%Y-%m-%dT%H:%M:%S.%f')
-            del kwargs['__class__']
+            if '__class__' in kwargs.keys():
+                del kwargs['__class__']
             # Loop through kwargs to create instance attribute(s)
             for key, value in kwargs.items():
                 setattr(self, key, value)
@@ -48,8 +51,10 @@ class BaseModel:
         dictionary.update(self.__dict__)
         dictionary.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
+
+        if 'created_at' in dictionary and dictionary['created_at'] is not None:
+            dictionary['created_at'] = self.created_at.isoformat()
+            dictionary['updated_at'] = self.updated_at.isoformat()
         # the key '__sa_instance_state' is removed if it still exists
         if '_sa_instance_state' in dictionary.keys():
             del dictionary['_sa_instance_state']

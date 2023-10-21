@@ -9,7 +9,7 @@ class FileStorage:
     __objects = {}
 
     def delete(self, obj=None):
-        """Deletes an object from __objects"""
+        """an object is deleted from __objects"""
         if obj is not None:
             class_name = obj.to_dict().get('__class__')
             obj_id = obj.id
@@ -47,6 +47,10 @@ class FileStorage:
                 temp[key] = val.to_dict()
             json.dump(temp, f)
 
+    def close(self):
+        """deserializing the JSON file to objects"""
+        self.reload()
+
     def reload(self):
         """Loads storage dictionary from file"""
         from models.base_model import BaseModel
@@ -70,8 +74,3 @@ class FileStorage:
                     self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
-
-    def close(self):
-        """Calls Reload method for deserializing the JSON file to objects"""
-        self.reload()
-
